@@ -58,5 +58,8 @@ $route['signup'] = 'user/signup';
 $route['support'] = 'user/support';
 $route['terms'] = 'user/terms';
 
+$route['admin'] = 'Admin/index';
+$route['admin/(:any)'] = 'Admin/$1';
+
 
 

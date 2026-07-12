@@ -233,11 +233,11 @@ public function send_login_otp($number = 0)
     // Send the API request
     $result = file_get_contents($otp_url, false, stream_context_create($arrContextOptions));
 
-    // Prepare and echo JSON response including the API result for debugging (optional)
+    // Prepare and echo JSON response
     $response = [
         'return'     => true,
-        'request_id' => uniqid(), // Generates a unique request ID
-        'message'    => ['Message sent successfully', 'API response: ' . $result]
+        'request_id' => uniqid(),
+        'message'    => ['Message sent successfully']
     ];
     echo json_encode($response);
 }
