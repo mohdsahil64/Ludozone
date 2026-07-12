@@ -1,0 +1,20 @@
+# Session files
+application/cache/session/*
+!application/cache/session/.gitkeep
+
+# Logs
+application/logs/*.php
+!application/logs/index.html
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Environment specific
+.env
