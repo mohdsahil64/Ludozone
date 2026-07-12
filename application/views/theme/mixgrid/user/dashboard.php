@@ -28,11 +28,8 @@ opacity:0.7;
 <div class="d-flex justify-content-between">
 <span class=" fs-4">Games</span>
 <div>
-    <a class="btn btn-sm btn-outline-primary" href="#" data-bs-toggle="modal" data-bs-target="#rules" aria-controls="rules">
+    <a class="btn btn-sm btn-outline-primary" href="#" data-bs-toggle="modal" data-bs-target="#rules" aria-controls="rules" style="font-size:11px;padding:3px 8px;">
      <i class="bi bi-info-circle"></i> Rules
-    </a>
- <a class="btn btn-sm btn-outline-primary" href="#" data-bs-toggle="offcanvas" data-bs-target="#offcanvasBottom" aria-controls="offcanvasBottom">
-     <i class="bi bi-info-circle"></i> Instructions
     </a>
 </div>
 </div>
@@ -67,7 +64,7 @@ foreach($games as $index=>$game){
      ?>
    
 <img src="<?=base_url('assets/images/'.($game->logo?$game->logo:'no-img.png'))?>" class="w-100" />
-<p class="m-0 p-0 <?=@$animate?>  d-inline-block px-2 py-1"><i class="bi bi-dice-6"></i> <?=$game->game_name?></p>
+<p class="m-0 p-0 d-inline-block px-2 py-1"><i class="bi bi-dice-6"></i> <?=$game->game_name?></p>
 </div>
 </a>
 </div>
@@ -82,20 +79,7 @@ foreach($games as $index=>$game){
 
 
    <div>
-<div class="d-flex mt-3">
-  <div>
-  <img src="<?=base_url('assets/images/'.$this->db->get('system')->row()->brand_logo)?>" alt="" width="100"><br>
- 
-</div>
-<div class="small px-2">
-  <b><?=$this->db->get('system')->row()->brand_name?></b><br>
-<?=$this->db->get('system')->row()->meta_desc?>
-</div>
-</div>
-<div class="d-flex flex-wrap justify-content-center gap-2 text-secondary" style="opacity:0.8">
 
-
-</div>
 </div>
 
 

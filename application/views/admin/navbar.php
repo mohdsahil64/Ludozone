@@ -102,7 +102,7 @@ if(@$access->can_access_m || $user->id==1){
             
 
        <?php
-if(@$access->can_access_mg || $user->id==1){
+if(false){
   ?>
    <li class="nav-item"><a class="nav-link  showloading" href="<?=base_url('admin/managegames')?>">
             <svg class="nav-icon">
@@ -150,7 +150,7 @@ if(@$access->can_access_nam || $user->id==1){
 
 
               <?php
-if(@$access->can_access_th || $user->id==1){
+if(@$access->can_access_th || false){
   ?>
   <li class="nav-item"><a class="nav-link showloading" href="<?=base_url('admin/theme')?>"><svg class="nav-icon"><use xlink:href="<?=base_url('assets/adminpanel/dist')?>/vendors/@coreui/icons/svg/free.svg#cil-brush-alt"></use></svg> Theme</a></li>
   <?php
@@ -158,7 +158,7 @@ if(@$access->can_access_th || $user->id==1){
             ?>
 
     <?php
-if(@$access->can_access_ps || $user->id==1){
+if(false){
   ?>
   <li class="nav-item"><a class="nav-link showloading" href="<?=base_url('admin/pages')?>"><svg class="nav-icon"><use xlink:href="<?=base_url('assets/adminpanel/dist')?>/vendors/@coreui/icons/svg/free.svg#cil-window-maximize"></use></svg> Pages</a></li>
   <?php
@@ -168,7 +168,6 @@ if(@$access->can_access_ps || $user->id==1){
 <?php
 if($user->id==1){
   ?>
-   <li class="nav-item"><a class="nav-link showloading" href="<?=base_url('admin/system')?>"><svg class="nav-icon"><use xlink:href="<?=base_url('assets/adminpanel/dist')?>/vendors/@coreui/icons/svg/free.svg#cil-apps"></use></svg> Site Setting</a></li>
  <li class="nav-item"><a class="nav-link showloading" href="<?=base_url('admin/manageadmins')?>">
             <svg class="nav-icon">
               <use xlink:href="<?=base_url('assets/adminpanel/dist')?>/vendors/@coreui/icons/svg/free.svg#cil-user"></use>
@@ -176,7 +175,6 @@ if($user->id==1){
            
            
             <!-- <li class="nav-item"><a class="nav-link" href="buttons/button-group.html"><svg class="nav-icon"><use xlink:href="<?=base_url('assets/adminpanel/dist')?>/vendors/@coreui/icons/svg/free.svg#cil-people"></use></svg> Manage Admins</a></li> -->
-            <li class="nav-item"><a class="nav-link showloading" href="<?=base_url('admin/apiaccess')?>"><svg class="nav-icon"><use xlink:href="<?=base_url('assets/adminpanel/dist')?>/vendors/@coreui/icons/svg/free.svg#cil-sitemap"></use></svg> API Config</a></li>
 
             <!-- <li class="nav-item"><a class="nav-link showloading" href="<?=base_url('admin/system')?>">
             <svg class="nav-icon">

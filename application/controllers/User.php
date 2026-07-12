@@ -97,6 +97,10 @@ redirect(base_url('user/wallet'));
         $this->aadharapiauth();
         if($this->session->userdata('UserAuth')){
             $this->user = $this->db->where('id',$this->session->userdata('UserAuth'))->get('users')->row();
+            if(!$this->user){
+                $this->session->unset_userdata('UserAuth');
+                redirect(base_url('user/login'));
+            }
         }else{
             redirect(base_url('user/login'));
         }
@@ -1205,19 +1209,15 @@ $theme=$this->db->get('system')->row()->theme;
     }
 
     public function undermaintenance(){
-        if($this->db->get('system')->row()->site_mode==0){
-         
-          
-   redirect(base_url('user/under_maintenance'));
-      
-      
-
+        $system = $this->db->get('system')->row();
+        if($system && $system->site_mode==0){
+            redirect(base_url('user/under_maintenance'));
             die();
         }
 
          if($this->session->userdata('UserAuth')){
             $user = $this->db->where('id',$this->session->userdata('UserAuth'))->get('users')->row();
-            if($user->status==3){
+            if($user && $user->status==3){
  redirect(base_url('user/blocked'));
                 die();
             }
