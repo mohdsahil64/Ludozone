@@ -25,13 +25,7 @@ if(isset($user)){
    <a class="btn btn-sm border d-flex align-items-center showloading gap-1" href="<?=base_url('user/wallet')?>">
   
      <img src="<?=base_url('assets/images/money2.png')?>" height="17px"/>
-      ₹ <?=number_format(@$balance)?>
-    </a>
-
-      <a class="btn btn-sm border d-flex align-items-center showloading gap-1" href="<?=base_url('user/withdraws')?>">
-  
-     <img src="<?=base_url('assets/images/prize.png')?>" height="17px"/>
-      ₹ <?=number_format(@$pbalance)?>
+      ₹ <?=number_format(@$balance + @$pbalance)?>
     </a>
   <?php
 }else{

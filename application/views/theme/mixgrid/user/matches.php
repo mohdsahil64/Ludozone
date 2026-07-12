@@ -62,7 +62,7 @@ if($fn->user->username==$joiner->username){
     <?php
 if($match->joiner_id){ ?>
 
- <a href="<?=base_url('user/match/'.$match->id)?>" class="btn btn-sm btn-primary w-100 mt-1 showloading"><i class="bi bi-dice-6"></i> Open Match</a>
+ <a href="<?=base_url('user/match/'.$match->id)?>" class="btn btn-sm btn-primary w-100 mt-1 showloading"><i class="bi bi-dice-6"></i> View Match</a>
 <?php
 }else{
     ?>

@@ -13,7 +13,7 @@ background-image: linear-gradient(62deg, #FBAB7E 0%, #F7CE68 100%);
 <img src="<?=base_url('assets/images/wallet.png')?>" width="80"/>
 </div>
 <div class="text-end">	
-<h1 class="m-0" style="font-size:35px">₹ <?=number_format(@$balance)?></h1>
+<h1 class="m-0" style="font-size:35px">₹ <?=number_format(@$balance + @$pbalance)?></h1>
 <span style="font-size:15px">Available Balance</span>
 </div>
 

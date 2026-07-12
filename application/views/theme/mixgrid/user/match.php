@@ -12,7 +12,7 @@
   <div class="card-body">
 
   <?php
-if($this->db->get('messages')->row()->on_match_screen_top){
+if(!$match->room_code && $this->db->get('messages')->row()->on_match_screen_top){
   ?>
 <div class="alert alert-danger my-2" style="font-size:13.5px" role="alert">
 <?=$this->db->get('messages')->row()->on_match_screen_top?>
@@ -72,7 +72,13 @@ if($user->username==$host->username){
 
 <div>
 <?php
-if($match->winner==$host->id){
+if(isset($conflict) && $conflict){
+    if($match->winner==$host->id){
+        echo '<span class="badge small bg-success small">Won Claim</span>';
+    }elseif($match->looser==$host->id){
+        echo '<span class="badge small bg-danger small">Lost Accepted</span>';
+    }
+}elseif($match->winner==$host->id){
     ?>
 <span class="badge small bg-secondary small"> Result Submitted</span>
     <?php
@@ -111,19 +117,31 @@ if($user->username==$joiner->username){
 
 <div>
 <?php
-if($match->winner==$joiner->id){
+if(isset($conflict) && $conflict){
+    if($match->winner==$joiner->id){
+        echo '<span class="badge small bg-success small">Won Claim</span>';
+    }elseif($match->looser==$joiner->id){
+        echo '<span class="badge small bg-danger small">Lost Accepted</span>';
+    }
+}elseif($match->winner==$joiner->id){
     ?>
 <span class="badge small bg-secondary small"> Result Submitted</span>
+    <?php
+}elseif(($match->winner==$user->id || $match->looser==$user->id) && $match->winner!=$joiner->id && $match->looser!=$joiner->id){
+    ?>
+<span class="badge small bg-warning text-dark small"> Waiting...</span>
     <?php
 }
 ?>
 </div>
 <div>
 <?php
+if(!(isset($conflict) && $conflict)){
 if($match->looser==$joiner->id){
     ?>
 <span class="badge small bg-secondary small"> Result Submitted</span>
     <?php
+}
 }
 ?>
 </div>
@@ -170,6 +188,24 @@ if($match->room_code==0 && $host->id==$user->id){
 if($match->room_code){
     ?>
 <button class="btn btn-primary btn-sm w-100 fw-bold my-1" onClick="copyreflink('roomcodeid');"><i class="bi bi-files"></i> Copy Room Code</button>
+<?php
+if(isset($conflict) && $conflict){
+?>
+<div class="alert alert-warning text-center my-2" style="font-size:13px" role="alert">
+<i class="bi bi-clock-history"></i> <b>Match Pending - Admin Review</b><br>
+Dono players ne alag result diya hai. Admin review ke baad result update hoga.
+</div>
+<div class="d-flex justify-content-around my-2">
+<div class="text-center">
+<span class="badge bg-<?=$match->winner==$host->id?'success':'danger'?>"><?=$match->winner==$host->id?'Won Claim':'Lost Claim'?></span>
+</div>
+<div class="text-center">
+<span class="badge bg-<?=$match->winner==$joiner->id?'success':'danger'?>"><?=$match->winner==$joiner->id?'Won Claim':'Lost Claim'?></span>
+</div>
+</div>
+<?php
+}else{
+?>
 <div class="d-flex">
 <?php
 if($match->winner!=$user->id && $match->looser!=$user->id){
@@ -219,12 +255,28 @@ if($match->winner!=$user->id && $match->looser!=$user->id){
 ?>
 
 </div>
+<?php
+} // end of else (no conflict)
+?>
 
     <?php
 }
 ?>
 
-<a href="" class="btn btn-warning btn-sm  w-100 fw-bold my-1"  data-bs-toggle="offcanvas" data-bs-target="#cancel"><i class="bi bi-x-circle"></i> Request Cancellation</a>
+<?php
+$userSubmittedResult = ($match->winner==$user->id || $match->looser==$user->id);
+if(!$userSubmittedResult && !(isset($conflict) && $conflict)){
+?>
+<a href="" class="btn btn-warning btn-sm  w-100 fw-bold my-1"  data-bs-toggle="offcanvas" data-bs-target="#cancel"><i class="bi bi-x-circle"></i> I Want Cancel</a>
+<?php
+}else{
+?>
+<div class="alert alert-warning text-center my-1" style="font-size:13px" role="alert">
+<i class="bi bi-hourglass-split"></i> Aapka result submit ho chuka hai. Opponent ke result ka wait karo.
+</div>
+<?php
+}
+?>
 
 <!-- <a href="" class="btn btn-warning btn-sm  w-100 fw-bold my-1"  data-bs-toggle="offcanvas" data-bs-target="#c"> Opponent Submitted Wrong Result</a> -->
 
@@ -240,7 +292,7 @@ if($match->winner!=$user->id && $match->looser!=$user->id){
   <input class="form-control form-control-sm" id="formFileSm" name="screenshot" type="file" required>
 </div>
 <p class="text-danger small"><b>Note:</b> <?=$this->db->get('messages')->row()->on_conflict_pop_up?></p>
-<button type="submit" class="btn btn-sm btn-primary w-100">Submit Conflict Request</button>
+<button type="submit" class="btn btn-sm btn-primary w-100">Submit for Admin Review</button>
 </form>
   </div>
 </div>

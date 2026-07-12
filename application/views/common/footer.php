@@ -31,7 +31,7 @@
 <?php
 if(isset($match) && $match->joiner_time){
     ?>
-var countDownDate = new Date(" <?=date('M d, Y H:i:s',$match->joiner_time+150)?>").getTime();;
+var countDownDate = new Date(" <?=date('M d, Y H:i:s',$match->joiner_time+240)?>").getTime();;
 
 // Update the count down every 1 second
 var x = setInterval(function() {

@@ -31,7 +31,7 @@ Prize : ₹ <?=$reward?>
     </div>
 
 
- <a href="<?=base_url('user/joinmatch/'.$match->id)?>" class="btn btn-sm btn-success w-100 mt-1 showloading"><i class="bi bi-play-fill"></i> Play Match ( ₹ <?=$match->amount?>)</a>
+ <a href="<?=base_url('user/joinmatch/'.$match->id)?>" class="btn btn-sm btn-success w-100 mt-1 showloading"><i class="bi bi-play-fill"></i> Join Game ( ₹ <?=$match->amount?>)</a>
 
  
 </div>

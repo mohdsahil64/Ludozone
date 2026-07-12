@@ -321,9 +321,114 @@ $response['status']='pending';
 }
 
 public function updatependingmatches(){
-    return;
-
-
+    // CASE 1: 20 min no response after room code shared → Conflict to admin
+    $timeout_20min = time() - 1200; // 20 minutes
+    
+    $no_response_matches = $this->db->where('status', 1)
+        ->where('room_code !=', 0)
+        ->where('joiner_id !=', 0)
+        ->where('winner', 0)
+        ->where('looser', 0)
+        ->where('joiner_time <', $timeout_20min)
+        ->where('joiner_time !=', 0)
+        ->get('matches')->result();
+    
+    foreach($no_response_matches as $match){
+        $conflict = $this->db->where('match_id', $match->id)->where('status', 1)->get('conflicts')->row();
+        if($conflict) continue;
+        // Check no cancel request pending
+        $cancel = $this->db->where('match_id', $match->id)->where('status', 1)->get('cancel_reqs')->row();
+        if($cancel) continue;
+        
+        $cc = [];
+        $cc['user_id'] = 0;
+        $cc['match_id'] = $match->id;
+        $cc['created_at'] = time();
+        $cc['screenshot'] = '';
+        $cc['status'] = 1;
+        $cc['reason'] = 'Timeout - 20 min no response';
+        $this->db->insert('conflicts', $cc);
+    }
+    
+    // CASE 2: "I Won" submitted + 2 min + opponent silent → Conflict to admin
+    $timeout_2min = time() - 120;
+    
+    $won_matches = $this->db->where('status', 1)
+        ->where('room_code !=', 0)
+        ->where('joiner_id !=', 0)
+        ->where('winner !=', 0)
+        ->where('looser', 0)
+        ->where('winner_time <', $timeout_2min)
+        ->where('winner_time !=', 0)
+        ->get('matches')->result();
+    
+    foreach($won_matches as $match){
+        $conflict = $this->db->where('match_id', $match->id)->where('status', 1)->get('conflicts')->row();
+        if($conflict) continue;
+        
+        $cc = [];
+        $cc['user_id'] = $match->winner;
+        $cc['match_id'] = $match->id;
+        $cc['created_at'] = time();
+        $cc['screenshot'] = '';
+        $cc['status'] = 1;
+        $cc['reason'] = 'Opponent did not respond in 2 min after win claim';
+        $this->db->insert('conflicts', $cc);
+    }
+    
+    // CASE 3: "I Lost" submitted + 2 min + opponent silent → Auto win to opponent
+    $lost_matches = $this->db->where('status', 1)
+        ->where('room_code !=', 0)
+        ->where('joiner_id !=', 0)
+        ->where('winner', 0)
+        ->where('looser !=', 0)
+        ->where('looser_time <', $timeout_2min)
+        ->where('looser_time !=', 0)
+        ->get('matches')->result();
+    
+    foreach($lost_matches as $match){
+        $conflict = $this->db->where('match_id', $match->id)->where('status', 1)->get('conflicts')->row();
+        if($conflict) continue;
+        
+        $winner_id = ($match->looser == $match->host_id) ? $match->joiner_id : $match->host_id;
+        
+        $this->db->where('id', $match->id)->update('matches', [
+            'winner' => $winner_id,
+            'winner_time' => time()
+        ]);
+        
+        $this->checkmatch($match->id);
+    }
+    
+    // CASE 4: Cancel request + room code shared + 2 min opponent didn't cancel → Conflict
+    $cancel_reqs = $this->db->where('status', 1)->where('created_at <', $timeout_2min)->get('cancel_reqs')->result();
+    
+    foreach($cancel_reqs as $creq){
+        $match = $this->db->where('id', $creq->match_id)->where('status', 1)->get('matches')->row();
+        if(!$match) continue;
+        if($match->room_code == 0) continue; // room code nahi = already handled instant
+        if($match->winner != 0 || $match->looser != 0) continue;
+        
+        // Check if both cancelled
+        $both = $this->db->where('match_id', $match->id)->where('status', 1)->get('cancel_reqs')->num_rows();
+        if($both >= 2){
+            $this->docancelmatch($match->id);
+            continue;
+        }
+        
+        // Only one cancelled + 2 min passed + room shared → conflict
+        $conflict = $this->db->where('match_id', $match->id)->where('status', 1)->get('conflicts')->row();
+        if($conflict) continue;
+        
+        $cc = [];
+        $cc['user_id'] = $creq->req_by;
+        $cc['match_id'] = $match->id;
+        $cc['created_at'] = time();
+        $cc['screenshot'] = '';
+        $cc['status'] = 1;
+        $cc['reason'] = 'Cancel request - opponent did not respond in 2 min';
+        $this->db->insert('conflicts', $cc);
+    }
 }
 
 
@@ -637,7 +742,7 @@ redirect(base_url('user/dashboard?sd'));
             'status'=>'1',
             'id'=>$matchid
         ])->get('matches')->row();
-if($match->amount>$this->getAvailableBalance()){
+if($match->amount>($this->getAvailableBalance() + $this->getRewardBalance())){
 $this->session->set_flashdata('txnmsg',"you don't have sufficent balance in your wallet");
     redirect(base_url('user/dashboard'));
     die();
@@ -756,7 +861,7 @@ $screenshotimage=$screenshot['image'];
         }
 
          if($match->winner){
-            $this->session->set_flashdata('txnmsg','conflict created, match submitted to admin for review');
+            $this->session->set_flashdata('txnmsg','Dono players ne alag result diya hai. Match admin review mein hai. Please wait.');
               $cc['user_id']=$this->user->id;
          $cc['match_id']=$match->id;
          $cc['created_at']=time();
@@ -771,7 +876,7 @@ $w="(winner=".$this->user->id." OR looser=".$this->user->id.")";
             'id'=>$matchid
         ])->where($w)->get('matches')->row();
         if($mr){
-            $this->session->set_flashdata('txnmsg','you already submitted your result !');
+            $this->session->set_flashdata('txnmsg','Aapne apna result submit kar diya hai. Opponent ke result ka wait karo.');
             $this->checkmatch($matchid);
              redirect(base_url('user/match/'.$matchid));
         }
@@ -822,7 +927,7 @@ $screenshotimage=$screenshot['image'];
 if($match->winner!=0 || $match->looser!=0){
 $this->db->insert('conflicts',$cc);
 }else{
-    $this->session->set_flashdata('txnmsg','your opponent not submitted result');
+    $this->session->set_flashdata('txnmsg','Opponent ne abhi tak result submit nahi kiya.');
 
 }
 
@@ -853,7 +958,9 @@ public function ilost($matchid){
             redirect(base_url('user/dashboard'));
         }
         if($match->looser){
-            $this->session->set_flashdata('txnmsg','other player already reported lost');
+            $this->session->set_flashdata('txnmsg','Opponent ne pehle hi loss submit kar diya hai. Dono loss submit nahi kar sakte.');
+            redirect(base_url('user/match/'.$matchid));
+            die();
         }
 
          $w="(winner=".$this->user->id." OR looser=".$this->user->id.")";
@@ -861,7 +968,7 @@ public function ilost($matchid){
             'id'=>$matchid
         ])->where($w)->get('matches')->row();
         if($mr){
-            $this->session->set_flashdata('txnmsg','you already submitted your result !');
+            $this->session->set_flashdata('txnmsg','Aapne apna result submit kar diya hai. Opponent ke result ka wait karo.');
             $this->checkmatch($matchid);
              redirect(base_url('user/match/'.$matchid));
         }
@@ -960,32 +1067,44 @@ public function reqcancel($matchid=0){
         ])->get('cancel_reqs')->result();
 
         if($match->winner==0 && $match->looser==0){
- if($rr){
- $this->session->set_flashdata('txnmsg','You already submitted a cancellation request');
-        }else{
-             
-$this->db->insert('cancel_reqs',$req);
-$hostcancel = $this->db->where([
-            "req_by"=>$match->host_id,
-            "match_id"=>$matchid,
-            "status"=>1
-        ])->get('cancel_reqs')->result();
-$joinercancel = $this->db->where([
-            "req_by"=>$match->joiner_id,
-            "match_id"=>$matchid,
-            "status"=>1
-        ])->get('cancel_reqs')->result();
-
-        if($hostcancel && $joinercancel){
+        
+        // Room code nahi shared - ek cancel = instant cancel + refund
+        if($match->room_code == 0){
+            $this->db->insert('cancel_reqs',$req);
             $this->docancelmatch($matchid);
-             $this->session->set_flashdata('txnmsg','match is cancelled, because both players requested to cancel the match');
+            $this->session->set_flashdata('txnmsg','Match cancel ho gayi hai. Dono players ko paisa wapas mil gaya.');
         }else{
-$this->session->set_flashdata('txnmsg','You cancellation request is submitted');
+            // Room code shared - dono ki consent chahiye
+            if($rr){
+                $this->session->set_flashdata('txnmsg','Aapne pehle se cancel request di hui hai. Opponent ki cancel request ka wait karo.');
+            }else{
+                $this->db->insert('cancel_reqs',$req);
+                $hostcancel = $this->db->where([
+                    "req_by"=>$match->host_id,
+                    "match_id"=>$matchid,
+                    "status"=>1
+                ])->get('cancel_reqs')->result();
+                $joinercancel = $this->db->where([
+                    "req_by"=>$match->joiner_id,
+                    "match_id"=>$matchid,
+                    "status"=>1
+                ])->get('cancel_reqs')->result();
+
+                if($hostcancel && $joinercancel){
+                    $this->docancelmatch($matchid);
+                    $this->session->set_flashdata('txnmsg','Match cancel ho gayi hai. Dono players ko paisa wapas mil gaya.');
+                }else{
+                    $this->session->set_flashdata('txnmsg','Aapki cancel request submit ho gayi hai. Jab dono players cancel karenge tabhi match cancel hogi aur paisa wapas aayega.');
+                }
+            }
+        }
+        }else{
+ $this->session->set_flashdata('txnmsg','Aapki cancel request submit ho gayi hai. Jab dono players cancel karenge tabhi match cancel hogi aur paisa wapas aayega.');
         }
 
         }
         }else{
-            $this->session->set_flashdata('txnmsg','result already submitted , you cannot cancel the match now');
+            $this->session->set_flashdata('txnmsg','Result already submit ho chuka hai, ab cancel nahi hogi.');
         }
        
         
@@ -1060,12 +1179,7 @@ $match=$this->db->where('id',$matchid)->where('status',1)->get('matches')->row()
     $this->updatependingmatches();
         $this->onlyforauth();
 
-        $conflict=$this->db->where('match_id',$matchid)->where('status',1)->get('conflicts')->row();
-if($conflict){
-$this->session->set_flashdata('txnmsg','Conflict created for this match, and submited to admin for review. please wait');
-redirect(base_url('user/dashboard'));
-    die();
-}
+        $data['conflict']=$this->db->where('match_id',$matchid)->where('status',1)->get('conflicts')->row();
 
 
 
@@ -1083,7 +1197,12 @@ redirect(base_url('user/dashboard'));
             'status'=>1
         ])->where($who)->get('matches')->row();
         if(!$match){
-            redirect(base_url('user/dashboard'));
+            $match=$this->db->where([
+                'id'=>$matchid
+            ])->where($who)->get('matches')->row();
+            if(!$match){
+                redirect(base_url('user/dashboard'));
+            }
         }
 
         if(!$match->room_code){
