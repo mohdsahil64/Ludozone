@@ -1099,11 +1099,6 @@ public function reqcancel($matchid=0){
             }
         }
         }else{
- $this->session->set_flashdata('txnmsg','Aapki cancel request submit ho gayi hai. Jab dono players cancel karenge tabhi match cancel hogi aur paisa wapas aayega.');
-        }
-
-        }
-        }else{
             $this->session->set_flashdata('txnmsg','Result already submit ho chuka hai, ab cancel nahi hogi.');
         }
        
