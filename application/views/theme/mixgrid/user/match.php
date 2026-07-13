@@ -23,8 +23,7 @@ if(!$match->room_code && $this->db->get('messages')->row()->on_match_screen_top)
  <?php 
 if(!$match->room_code){
   ?>
-<div id="timer" class="badge bg-danger fs-2"></div><br>
-<small class="text-danger">note: if no room code entered before the timer ends, game will cancel automatically</small>
+
   <?php
 }
  ?>

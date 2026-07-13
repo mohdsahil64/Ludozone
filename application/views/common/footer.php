@@ -31,39 +31,7 @@
 <?php
 if(isset($match) && $match->joiner_time){
     ?>
-var countDownDate = new Date(" <?=date('M d, Y H:i:s',$match->joiner_time+240)?>").getTime();;
-
-// Update the count down every 1 second
-var x = setInterval(function() {
-
-  // Get today's date and time
-  var now = new Date().getTime();
-    
-  // Find the distance between now and the count down date
-  var distance = countDownDate - now;
-    
-  // Time calculations for days, hours, minutes and seconds
-  var days = Math.floor(distance / (1000 * 60 * 60 * 24));
-  var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-  var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-  var seconds = Math.floor((distance % (1000 * 60)) / 1000);
-    
-  // Output the result in an element with id="demo"
-  if(seconds<10){
-    seconds='0'+seconds
-  }
-  console.log('play audio');
-             document.getElementById('clock').play();
-  document.getElementById("timer").innerHTML = '0'+ minutes + ":" + seconds ;
-    
-  // If the count down is over, write some text 
-  if (distance < 0) {
-    clearInterval(x);
-    document.getElementById("timer").innerHTML = "Times Up";
-    $("#loading").show();
-    location.reload();
-  }
-}, 1000);
+// Timer removed - no auto cancel on room code timeout
     <?php
 }
 

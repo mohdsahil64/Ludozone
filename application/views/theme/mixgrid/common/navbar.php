@@ -21,11 +21,18 @@ if($this->db->get('messages')->row()->on_header_top_strip){
     <div class="d-flex align-items-center gap-2">
       <?php
 if(isset($user)){
+  $ref_earnings = $this->db->select('SUM(amount) as money')->where(['user_id'=>$user->id,'type'=>'CREDIT','ctg'=>'REFERRAL_BONUS'])->get('transections')->row()->money;
   ?>
    <a class="btn btn-sm border d-flex align-items-center showloading gap-1" href="<?=base_url('user/wallet')?>">
   
      <img src="<?=base_url('assets/images/money2.png')?>" height="17px"/>
       ₹ <?=number_format(@$balance + @$pbalance)?>
+    </a>
+
+    <a class="btn btn-sm border d-flex align-items-center showloading gap-1" href="<?=base_url('user/referral')?>">
+  
+     <img src="<?=base_url('assets/images/prize.png')?>" height="17px"/>
+      ₹ <?=number_format(@$ref_earnings)?>
     </a>
   <?php
 }else{

@@ -890,7 +890,7 @@ $w="(winner=".$this->user->id." OR looser=".$this->user->id.")";
         ]);
 $this->checkmatch($matchid);
 
-        redirect(base_url('user/match/'.$matchid));
+        redirect(base_url('user/matches/'.$match->game));
 }
 
 
@@ -982,7 +982,7 @@ public function ilost($matchid){
             "looser_time"=>time()
         ]);
 $this->checkmatch($matchid);
-        redirect(base_url('user/match/'.$matchid));
+        redirect(base_url('user/matches/'.$match->game));
 }
 
 
@@ -1073,6 +1073,8 @@ public function reqcancel($matchid=0){
             $this->db->insert('cancel_reqs',$req);
             $this->docancelmatch($matchid);
             $this->session->set_flashdata('txnmsg','Match cancel ho gayi hai. Dono players ko paisa wapas mil gaya.');
+            redirect(base_url('user/dashboard'));
+            die();
         }else{
             // Room code shared - dono ki consent chahiye
             if($rr){
