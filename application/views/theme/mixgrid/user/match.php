@@ -74,9 +74,11 @@ if($user->username==$host->username){
 <?php
 if(isset($conflict) && $conflict){
     if($match->winner==$host->id){
-        echo '<span class="badge small bg-success small">Won Claim</span>';
+        echo '<span class="badge small bg-success small">Win Submit kiya</span>';
     }elseif($match->looser==$host->id){
-        echo '<span class="badge small bg-danger small">Lost Accepted</span>';
+        echo '<span class="badge small bg-danger small">Loss Submit kiya</span>';
+    }else{
+        echo '<span class="badge small bg-secondary small">No Response</span>';
     }
 }elseif($match->winner==$host->id){
     ?>
@@ -119,9 +121,11 @@ if($user->username==$joiner->username){
 <?php
 if(isset($conflict) && $conflict){
     if($match->winner==$joiner->id){
-        echo '<span class="badge small bg-success small">Won Claim</span>';
+        echo '<span class="badge small bg-success small">Win Submit kiya</span>';
     }elseif($match->looser==$joiner->id){
-        echo '<span class="badge small bg-danger small">Lost Accepted</span>';
+        echo '<span class="badge small bg-danger small">Loss Submit kiya</span>';
+    }else{
+        echo '<span class="badge small bg-secondary small">No Response</span>';
     }
 }elseif($match->winner==$joiner->id){
     ?>
@@ -193,15 +197,18 @@ if(isset($conflict) && $conflict){
 ?>
 <div class="alert alert-warning text-center my-2" style="font-size:13px" role="alert">
 <i class="bi bi-clock-history"></i> <b>Match Pending - Admin Review</b><br>
-Dono players ne alag result diya hai. Admin review ke baad result update hoga.
-</div>
-<div class="d-flex justify-content-around my-2">
-<div class="text-center">
-<span class="badge bg-<?=$match->winner==$host->id?'success':'danger'?>"><?=$match->winner==$host->id?'Won Claim':'Lost Claim'?></span>
-</div>
-<div class="text-center">
-<span class="badge bg-<?=$match->winner==$joiner->id?'success':'danger'?>"><?=$match->winner==$joiner->id?'Won Claim':'Lost Claim'?></span>
-</div>
+<?php
+// Show reason based on actual results
+if($match->winner == $host->id && $match->winner == $joiner->id){
+    echo 'Dono players ne Win submit kiya hai isliye match pending hai.';
+}elseif($match->winner != 0 && $match->looser == 0){
+    echo 'Ek player ne Win submit kiya, dusre ne koi response nahi diya.';
+}elseif($conflict->reason){
+    echo $conflict->reason;
+}else{
+    echo 'Admin review ke baad result update hoga.';
+}
+?>
 </div>
 <?php
 }else{
@@ -269,7 +276,7 @@ if(!$userSubmittedResult && !(isset($conflict) && $conflict)){
 ?>
 <a href="" class="btn btn-warning btn-sm  w-100 fw-bold my-1"  data-bs-toggle="offcanvas" data-bs-target="#cancel"><i class="bi bi-x-circle"></i> I Want Cancel</a>
 <?php
-}else{
+}elseif($userSubmittedResult && !(isset($conflict) && $conflict)){
 ?>
 <div class="alert alert-warning text-center my-1" style="font-size:13px" role="alert">
 <i class="bi bi-hourglass-split"></i> Aapka result submit ho chuka hai. Opponent ke result ka wait karo.
