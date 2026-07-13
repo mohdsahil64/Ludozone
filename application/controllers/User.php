@@ -848,7 +848,7 @@ if($screenshot['process']=='done'){
 $screenshotimage=$screenshot['image'];
 }else{
     $this->session->set_flashdata('txnmsg','something is wrong with your screenshot');
-    redirect(base_url('user/match/'.$matchid));
+    redirect(base_url('user/matches/'.$match->game));
     die();
 }
 
@@ -878,7 +878,7 @@ $w="(winner=".$this->user->id." OR looser=".$this->user->id.")";
         if($mr){
             $this->session->set_flashdata('txnmsg','Aapne apna result submit kar diya hai. Opponent ke result ka wait karo.');
             $this->checkmatch($matchid);
-             redirect(base_url('user/match/'.$matchid));
+             redirect(base_url('user/matches/'.$match->game));
         }
         $this->db->where([
             'id'=>$matchid,
@@ -905,7 +905,7 @@ if($screenshot['process']=='done'){
 $screenshotimage=$screenshot['image'];
 }else{
     $this->session->set_flashdata('txnmsg','something is wrong with your screenshot');
-    redirect(base_url('user/match/'.$matchid));
+    redirect(base_url('user/matches/'.$match->game));
     die();
 }
 
@@ -933,7 +933,7 @@ $this->db->insert('conflicts',$cc);
 
 
         
-        redirect(base_url('user/match/'.$matchid));
+        redirect(base_url('user/matches/'.$match->game));
 }
 
 
@@ -959,7 +959,7 @@ public function ilost($matchid){
         }
         if($match->looser){
             $this->session->set_flashdata('txnmsg','Opponent ne pehle hi loss submit kar diya hai. Dono loss submit nahi kar sakte.');
-            redirect(base_url('user/match/'.$matchid));
+            redirect(base_url('user/matches/'.$match->game));
             die();
         }
 
@@ -970,7 +970,7 @@ public function ilost($matchid){
         if($mr){
             $this->session->set_flashdata('txnmsg','Aapne apna result submit kar diya hai. Opponent ke result ka wait karo.');
             $this->checkmatch($matchid);
-             redirect(base_url('user/match/'.$matchid));
+             redirect(base_url('user/matches/'.$match->game));
         }
 
 
@@ -1105,7 +1105,7 @@ public function reqcancel($matchid=0){
         }
        
         
-redirect(base_url('user/match/'.$matchid));
+redirect(base_url('user/matches/'.$match->game));
 
 
 }
