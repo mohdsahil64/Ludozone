@@ -1200,6 +1200,10 @@ $match=$this->db->where('id',$matchid)->where('status',1)->get('matches')->row()
             if(!$match){
                 redirect(base_url('user/dashboard'));
             }
+            // Match complete ho chuki hai - redirect to matches
+            if($match->status == 0){
+                redirect(base_url('user/matches/'.$match->game));
+            }
         }
 
         if(!$match->room_code){
